@@ -32,9 +32,13 @@ for path in glob.glob(test_img_folder):
     img = img * 1.0 / 255
     img = torch.from_numpy(np.transpose(img[:, :, [2, 1, 0]], (2, 0, 1))).float()
     img_LR = img.unsqueeze(0)
-    img_LR = img_LR.to(device)
 
-    output = model(img_LR).data.squeeze().float().cpu().clamp_(0, 1).numpy()
+    tmp = img_LR.to(device)
+    for i in range(1):
+        tmp = model(tmp)
+
+    output = tmp.data.squeeze().float().cpu().clamp_(0, 1).numpy()
+
     output = np.transpose(output[[2, 1, 0], :, :], (1, 2, 0))
     output = (output * 255.0).round()
     cv2.imwrite('results/{:s}_rlt.png'.format(base), output)
